@@ -5,3 +5,5 @@ data/
 outputs/
 .env
 *.db
+.coverage
+.pytest_cache/

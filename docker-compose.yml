@@ -1,14 +1,40 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  signal-forge:
-    build: .
-    container_name: inneri-signal-forge
+  # ─── Gradio Web UI ────────────────────────────────────────────────────────
+  signal-forge-ui:
+    build:
+      context: .
+      target: ui
+    container_name: inneri-signal-forge-ui
     ports:
       - "7860:7860"
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - POA_BASE_URL=${POA_BASE_URL:-https://proofofawareness.org}
+      - SECURE_GATEWAY_URL=${SECURE_GATEWAY_URL:-https://secure.innerinetcompany.com}
     volumes:
-      - ./data:/app/data
-      - ./outputs:/app/outputs
+      - forge-data:/app/data
+      - forge-outputs:/app/outputs
     restart: unless-stopped
+
+  # ─── FastAPI Backend ─────────────────────────────────────────────────────
+  signal-forge-api:
+    build:
+      context: .
+      target: api
+    container_name: inneri-signal-forge-api
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - POA_BASE_URL=${POA_BASE_URL:-https://proofofawareness.org}
+      - SECURE_GATEWAY_URL=${SECURE_GATEWAY_URL:-https://secure.innerinetcompany.com}
+    volumes:
+      - forge-data:/app/data
+      - forge-outputs:/app/outputs
+    restart: unless-stopped
+
+volumes:
+  forge-data:
+  forge-outputs:
